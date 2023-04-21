@@ -1,0 +1,40 @@
+---
+# tasks file for initRouter2
+- name: enable IPv4 forwarding
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: 1
+    state: present
+    reload: True
+    
+- name: install iptables-services
+  yum:
+    name: iptables-services
+    state: present
+    update_cache: true
+    
+- name: start & autorun iptables
+  systemd:
+    name: iptables.service
+    state: started
+    enabled: true
+    
+- name: config iptables
+  shell: iptables -t nat -A PREROUTING -i eth0 -p tcp -m tcp --dport 8080 -j DNAT --to-destination 192.168.0.2:80 && iptables -t nat -A POSTROUTING --destination 192.168.0.2/24 -j SNAT --to-source 192.168.150.2 && service iptables save
+  notify: restart_iptables
+  
+- name: disable default route
+  lineinfile:
+    path: /etc/sysconfig/network-scripts/ifcfg-eth0
+    line: DEFROUTE=no
+    
+- name: enable default route on eth1
+  lineinfile:
+    path: /etc/sysconfig/network-scripts/ifcfg-eth1
+    line: GATEWAY=192.168.150.1
+    
+- name: config route
+  copy:
+    src: route-eth1
+    dest: /etc/sysconfig/network-scripts/route-eth1
+    remote_src: no

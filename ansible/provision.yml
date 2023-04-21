@@ -1,0 +1,27 @@
+- name: install & configure IRouter
+  hosts: inetRouter
+  become: yes
+
+  roles:
+  - inetRouter
+ 
+- name: install & configure IRouter2
+  hosts: inetRouter2
+  become: yes
+  
+  roles:
+  - inetRouter2
+  
+- name: install & configure CRouter
+  hosts: centralRouter
+  become: yes
+  
+  roles:
+  - centralRouter
+
+- name: install & configure CServer
+  hosts: centralServer
+  become: yes
+  
+  roles:
+  - centralServer

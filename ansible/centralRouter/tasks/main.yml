@@ -1,0 +1,21 @@
+---
+# tasks file for centralRouter
+- name: install epel-release
+  yum:
+    name: epel-release
+    state: present
+    
+- name: install knock
+  yum:
+    name: knock
+    state: present
+    
+- name: disable default route
+  lineinfile:
+    path: /etc/sysconfig/network-scripts/ifcfg-eth0
+    line: DEFROUTE=no
+    
+- name: enable default route on eth1
+  lineinfile:
+    path: /etc/sysconfig/network-scripts/ifcfg-eth1
+    line: GATEWAY=192.168.150.1

@@ -1,0 +1,56 @@
+---
+# tasks file for inetRouter
+- name: install epel-release
+  yum:
+    name:
+      - epel-release
+    state: present
+    
+- name: install knock-server & iptables-services
+  yum:
+    name:
+      - knock-server
+      - iptables-services
+    state: present
+    update_cache: true
+    
+
+- name: insert conffile
+  copy:
+    src: knockd.conf
+    dest: /etc/knockd.conf
+    remote_src: no
+    
+- name: change conffile
+  template:
+    src: knockd
+    dest: /etc/sysconfig/knockd
+  notify: restart_knock
+  
+- name: enable IPv4 forwarding
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: 1
+    state: present
+    reload: True
+       
+- name: accept all
+  iptables:
+    chain: INPUT
+    ctstate: ESTABLISHED,RELATED
+    jump: ACCEPT
+  become: yes
+  
+- name: drop SSH
+  iptables:
+    chain: INPUT
+    protocol: tcp
+    destination_port: "22"
+    reject_with: tcp-reset
+  notify: restart_iptables
+  
+- name: config route
+  copy:
+    src: route-eth1
+    dest: /etc/sysconfig/network-scripts/route-eth1
+    remote_src: no

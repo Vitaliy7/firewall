@@ -1,0 +1,13 @@
+---
+# handlers file for inetRouter
+- name: restart_knock
+  service:
+    name: knockd.service
+    state: restarted
+    enabled: true
+    
+- name: restart_iptables
+  service:
+    name: iptables
+    state: restarted
+    enabled: true
